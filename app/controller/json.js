@@ -12,7 +12,7 @@ class JsonController extends Controller {
             "action": "基材"
         })
         const filePath = ctx.helper.exportToExcel({
-            title: '基材',
+            title: '社区基材物料',
             data: res.data
         })
         ctx.body = {
