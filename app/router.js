@@ -7,4 +7,6 @@ module.exports = app => {
   router.post('/api/runFlow', controller.api.runFlow);
   router.get('/api/json', controller.api.getJson);
   router.get('/api/table', controller.api.fetchTableData);
+
+  router.get('/json', controller.json.getJson);
 };

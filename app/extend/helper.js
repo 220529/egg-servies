@@ -1,4 +1,6 @@
 const fs = require('fs');
+const xlsx = require('node-xlsx');
+const dayjs = require('dayjs');
 
 module.exports = {
   /**
@@ -7,8 +9,9 @@ module.exports = {
    * @param {Object} params - API 参数
    * @returns {Promise<Object>} API 响应结果
    */
-  async callErpApi(ctx, params) {
-    const Authorization = fs.readFileSync(__dirname + 'Authorization.txt', 'utf8').trim();
+  async flow(params) {
+    const { ctx } = this
+    const Authorization = fs.readFileSync(__dirname + '/Authorization.txt', 'utf8').trim();
     try {
       const response = await ctx.app.curl(`https://erp.tone.top/api/runFlow`, {
         method: 'POST',
@@ -69,5 +72,47 @@ module.exports = {
    */
   logTotalInfo(total, description = '总计') {
     console.log(`----------${description}${total}条----------`);
+  },
+
+  /**
+   * 导出数据到Excel文件
+   * @param {string} title - 表格标题
+   * @param {Array} data - 数据数组，每个元素应该是一个对象
+   * @returns {string} 导出的文件路径
+   */
+  exportToExcel({title, data}) {
+    // 获取第一条数据的keys作为表头
+    const headers = Object.keys(data[0]);
+
+    // 生成文件名
+    const timestamp = dayjs().format('YYYYMMDD_HHmmss');
+    const fileName = `${title}_${timestamp}.xlsx`;
+    const filePath = `./data/${fileName}`;
+
+    // 准备Excel数据
+    const excelData = [headers]; // 第一行是表头
+
+    // 添加数据行
+    data.forEach(item => {
+      const row = headers.map(header => item[header]);
+      excelData.push(row);
+    });
+
+    // 创建Excel文件
+    const buffer = xlsx.build([{
+      name: title,
+      data: excelData
+    }]);
+
+    // 确保data目录存在
+    if (!fs.existsSync('./data')) {
+      fs.mkdirSync('./data', { recursive: true });
+    }
+
+    // 写入文件
+    fs.writeFileSync(filePath, buffer);
+
+    console.log(`Excel文件已导出: ${filePath}`);
+    return filePath;
   }
 }; 

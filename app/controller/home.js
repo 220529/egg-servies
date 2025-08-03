@@ -1,9 +1,11 @@
 const { Controller } = require('egg');
+const dayjs = require('dayjs');
 
 class HomeController extends Controller {
   async index() {
     const { ctx } = this;
-    ctx.body = 'hi, egg';
+    const time = dayjs().format('YYYYMMDD_HHmmss')
+    ctx.body = time;
   }
 }
 
